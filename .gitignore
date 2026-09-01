@@ -1,0 +1,8 @@
+#  Backend 
+/backend/venv/
+
+# downloaded files
+/downloads/*.zip
+
+# frontend
+/frontend/node_modules/
