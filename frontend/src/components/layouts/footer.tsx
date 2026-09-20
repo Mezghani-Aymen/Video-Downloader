@@ -11,7 +11,7 @@ export function Footer() {
 
                 <div className="flex items-center gap-4 text-muted-foreground font-medium">
                     <SocialLink
-                        href="https://github.com"
+                        href="https://github.com/Mezghani-Aymen/"
                         aria="GitHub Profile"
                         iconComponentName={FaGithub}
                     />
@@ -19,8 +19,8 @@ export function Footer() {
                     <span>•</span>
 
                     <SocialLink
-                        href="https://github.com"
-                        aria="GitHub Profile"
+                        href="https://www.linkedin.com/in/mezghani-med-aymen"
+                        aria="Linkedin Profile"
                         iconComponentName={FaLinkedin}
                     />
                 </div>
