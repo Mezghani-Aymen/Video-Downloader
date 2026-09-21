@@ -1,7 +1,9 @@
 from pathlib import Path
+from config import settings
+from logger import logger
 
-
-def setup_download_directory():
-    download_dir = Path(__file__).resolve().parent.parent / "downloads"
-    download_dir.mkdir(parents=True, exist_ok=True)
-    print(f"Download directory set up at: {download_dir}")
+def setup_download_directory() -> Path:
+    """Ensure the configured download directory exists."""
+    settings.ensure_directories()
+    logger.info(f"Download directory verified at: {settings.DOWNLOAD_DIR}")
+    return settings.DOWNLOAD_DIR
