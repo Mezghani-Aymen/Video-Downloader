@@ -6,16 +6,20 @@ from exceptions import VideoExtractionError
 from interfaces.extractor import IVideoExtractor
 from logger import logger
 from schemas import VideoInfoResponse, VideoFormatResponse
+from services.youtube_auth import get_ydl_auth_opts
 
 class YtDlpExtractor(IVideoExtractor):
     """Concrete video extractor using yt-dlp library."""
 
     def __init__(self, ydl_opts: Dict[str, Any] = None):
-        self.ydl_opts = ydl_opts or {
+        base_opts = {
             "quiet": True,
             "no_warnings": True,
             "skip_download": True,
         }
+        # Merge anti-bot auth opts (PO token, visitor_data, User-Agent spoofing)
+        auth_opts = get_ydl_auth_opts()
+        self.ydl_opts = ydl_opts or {**base_opts, **auth_opts}
 
     def _sync_extract(self, url: str) -> Dict[str, Any]:
         try:
