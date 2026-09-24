@@ -8,6 +8,7 @@ from exceptions import VideoDownloadError
 from interfaces.downloader import IVideoDownloader, ProgressCallback
 from logger import logger
 from schemas import DownloadRequest
+from services.youtube_auth import get_ydl_auth_opts
 
 class YtDlpDownloader(IVideoDownloader):
     """Concrete media downloader using yt-dlp and ffmpeg."""
@@ -57,6 +58,8 @@ class YtDlpDownloader(IVideoDownloader):
             "merge_output_format": settings.DEFAULT_AUDIO_FORMAT if is_audio_only else settings.DEFAULT_MERGE_FORMAT,
             "quiet": True,
             "no_warnings": True,
+            # Merge anti-bot auth opts (PO token, visitor_data, User-Agent spoofing)
+            **get_ydl_auth_opts(),
         }
 
         if request.download_subs:
