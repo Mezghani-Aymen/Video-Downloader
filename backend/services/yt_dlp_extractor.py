@@ -1,5 +1,5 @@
 import asyncio
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 import yt_dlp
 
 from exceptions import VideoExtractionError
@@ -7,6 +7,7 @@ from interfaces.extractor import IVideoExtractor
 from logger import logger
 from schemas import VideoInfoResponse, VideoFormatResponse
 from services.youtube_auth import get_ydl_auth_opts
+from services.youtube_oauth import get_session_ydl_opts
 
 class YtDlpExtractor(IVideoExtractor):
     """Concrete video extractor using yt-dlp library."""
@@ -17,11 +18,11 @@ class YtDlpExtractor(IVideoExtractor):
             "no_warnings": True,
             "skip_download": True,
         }
-        # Merge anti-bot auth opts (PO token, visitor_data, User-Agent spoofing)
+        # Merge anti-bot auth opts (User-Agent spoofing + optional cookie file)
         auth_opts = get_ydl_auth_opts()
         self.ydl_opts = ydl_opts or {**base_opts, **auth_opts}
 
-    def _sync_extract(self, url: str) -> Dict[str, Any]:
+    def _sync_extract(self, url: str, session_id: Optional[str] = None) -> Dict[str, Any]:
         try:
             with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=False)
@@ -32,9 +33,9 @@ class YtDlpExtractor(IVideoExtractor):
             logger.error(f"Extraction failed for {url}: {exc}")
             raise VideoExtractionError(f"Extraction error: {str(exc)}") from exc
 
-    async def extract_info(self, url: str) -> VideoInfoResponse:
+    async def extract_info(self, url: str, session_id: Optional[str] = None) -> VideoInfoResponse:
         """Asynchronously extract video info without blocking the event loop."""
-        info = await asyncio.to_thread(self._sync_extract, url)
+        info = await asyncio.to_thread(self._sync_extract, url, session_id)
 
         formats: List[VideoFormatResponse] = []
         raw_formats = info.get("formats", [])
