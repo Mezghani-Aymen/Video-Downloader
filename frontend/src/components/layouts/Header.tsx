@@ -2,8 +2,10 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/ui/brandLogo";
 import { useTheme } from "@/hooks/useTheme";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, SettingsIcon } from "lucide-react";
 import { ServerStatusBadge } from "../ui/serverStatusBadge";
+import { SettingsForm } from "../forms/SettingsForm";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 
 
 export function Header() {
@@ -36,7 +38,7 @@ export function Header() {
           </Button>
 
           {/* Settings Modal */}
-          {/* <Dialog>
+          <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm" className="rounded-xl gap-1.5 text-xs font-medium">
                 <SettingsIcon className="h-3.5 w-3.5" />
@@ -52,7 +54,7 @@ export function Header() {
               </DialogHeader>
               <SettingsForm />
             </DialogContent>
-          </Dialog> */}
+          </Dialog>
         </div>
       </div>
     </header>
