@@ -12,6 +12,7 @@ from exceptions import (
 from logger import logger
 from middleware import setup_middleware
 from routes import router as video_router
+from auth_router import router as auth_router
 from utils import setup_download_directory
 
 @asynccontextmanager
@@ -74,3 +75,4 @@ async def generic_processing_error_handler(request: Request, exc: VideoProcessin
 
 # Include routers
 app.include_router(video_router)
+app.include_router(auth_router)
