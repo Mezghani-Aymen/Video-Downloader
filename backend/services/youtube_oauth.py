@@ -146,10 +146,13 @@ def _run_oauth_flow(session_id: str, token_dir: str) -> None:
         url_pattern = re.compile(r"https://www\.google\.com/device\b\S*")
         code_pattern = re.compile(r"\b([A-Z]{4}-[A-Z]{4})\b")  # e.g. ABCD-EFGH
 
+        output_log = []
+
         for line in proc.stdout:
             line = line.strip()
             if not line:
                 continue
+            output_log.append(line)
             logger.debug(f"[oauth:{session_id[:8]}] {line}")
 
             # Extract verification URL
@@ -180,7 +183,9 @@ def _run_oauth_flow(session_id: str, token_dir: str) -> None:
                     session.authorized_at = time.monotonic()
                 else:
                     session.state = "failed"
-                    session.error = f"yt-dlp exited with code {proc.returncode}"
+                    # Include the last few lines of output in the error message for debugging
+                    last_output = " | ".join(output_log[-3:]) if output_log else "No output"
+                    session.error = f"yt-dlp exited with code {proc.returncode}: {last_output}"
 
     except subprocess.TimeoutExpired:
         proc.kill()
