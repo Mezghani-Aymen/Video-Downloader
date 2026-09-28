@@ -46,7 +46,7 @@ class VideoService:
     async def get_video_info(self, request: VideoRequest) -> VideoInfoResponse:
         """Fetch metadata and available qualities for a given video URL."""
         logger.info(f"Extracting video information for: {request.url}")
-        return await self.extractor.extract_info(request.url)
+        return await self.extractor.extract_info(request.url, request.session_id)
 
     def download_video_task(self, request: DownloadRequest, task_id: str) -> None:
         """
@@ -82,6 +82,7 @@ class VideoService:
                 task_id=task_id,
                 on_progress=on_progress,
                 output_dir=output_dir,
+                session_id=request.session_id,
             )
             completed_task = self.task_manager.update_task(
                 task_id,
@@ -130,6 +131,7 @@ class VideoService:
                 download_subs=request.download_subs,
                 custom_filename=request.custom_filename,
                 download_dir=request.download_dir,
+                session_id=request.session_id,
             )
             self.download_video_task(single_request, task_id)
             return
@@ -160,6 +162,7 @@ class VideoService:
                 download_subs=request.download_subs,
                 custom_filename=None,
                 download_dir=request.download_dir,
+                session_id=request.session_id,
             )
 
             # Mark subtask downloading
