@@ -9,6 +9,7 @@ from interfaces.downloader import IVideoDownloader, ProgressCallback
 from logger import logger
 from schemas import DownloadRequest
 from services.youtube_auth import get_ydl_auth_opts
+from services.youtube_oauth import get_session_ydl_opts
 
 class YtDlpDownloader(IVideoDownloader):
     """Concrete media downloader using yt-dlp and ffmpeg."""
@@ -30,6 +31,7 @@ class YtDlpDownloader(IVideoDownloader):
         task_id: str,
         on_progress: Optional[ProgressCallback] = None,
         output_dir: Optional[Path] = None,
+        session_id: Optional[str] = None,
     ) -> str:
         target_dir = output_dir or self.download_dir
         target_dir.mkdir(parents=True, exist_ok=True)
@@ -58,9 +60,12 @@ class YtDlpDownloader(IVideoDownloader):
             "merge_output_format": settings.DEFAULT_AUDIO_FORMAT if is_audio_only else settings.DEFAULT_MERGE_FORMAT,
             "quiet": True,
             "no_warnings": True,
-            # Merge anti-bot auth opts (PO token, visitor_data, User-Agent spoofing)
+            # Merge anti-bot auth opts (User-Agent spoofing + optional cookie file)
             **get_ydl_auth_opts(),
         }
+        
+        if session_id:
+            ydl_opts.update(get_session_ydl_opts(session_id))
 
         if request.download_subs:
             subs_lang = getattr(request, "subs_lang", "en") or "en"
