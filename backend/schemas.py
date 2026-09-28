@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 class VideoRequest(BaseModel):
     url: str = Field(..., description="Target video URL to extract or download")
+    session_id: Optional[str] = Field(default=None, description="Client session ID for OAuth2 token")
 
 
 class DownloadRequest(BaseModel):
@@ -13,6 +14,7 @@ class DownloadRequest(BaseModel):
     subs_lang: str = Field(default="en", description="Preferred subtitle language code (e.g. en, fr, ar)")
     custom_filename: Optional[str] = Field(default=None, description="Optional custom filename")
     download_dir: Optional[str] = Field(default=None, description="Target download directory on server")
+    session_id: Optional[str] = Field(default=None, description="Client session ID for OAuth2 token")
 
 
 class DynamicDownloadRequest(BaseModel):
@@ -28,6 +30,7 @@ class DynamicDownloadRequest(BaseModel):
     custom_filename: Optional[str] = Field(default=None, description="Optional custom filename (single link only)")
     download_dir: Optional[str] = Field(default=None, description="Target download directory on server")
     concurrent_limit: int = Field(default=3, ge=1, le=5, description="Max concurrent downloads for batch")
+    session_id: Optional[str] = Field(default=None, description="Client session ID for OAuth2 token")
 
     def get_urls(self) -> List[str]:
         if self.urls and len(self.urls) > 0:
@@ -46,6 +49,7 @@ class BatchDownloadRequest(BaseModel):
     download_subs: bool = Field(default=False, description="Whether to embed subtitles")
     download_dir: Optional[str] = Field(default=None, description="Target download directory on server")
     concurrent_limit: int = Field(default=3, ge=1, le=5, description="Max concurrent downloads")
+    session_id: Optional[str] = Field(default=None, description="Client session ID for OAuth2 token")
 
 
 class VideoFormatResponse(BaseModel):
