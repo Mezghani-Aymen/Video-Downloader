@@ -130,7 +130,6 @@ def _run_oauth_flow(session_id: str, token_dir: str) -> None:
         "--password", "",
         "--cache-dir", cache_dir,
         "--skip-download",
-        "--quiet",
         # We just need it to go through auth — use a short known video
         "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     ]
