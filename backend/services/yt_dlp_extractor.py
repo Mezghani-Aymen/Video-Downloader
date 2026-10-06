@@ -30,8 +30,16 @@ class YtDlpExtractor(IVideoExtractor):
                     raise VideoExtractionError(f"No media information could be extracted for {url}")
                 return info
         except Exception as exc:
-            logger.error(f"Extraction failed for {url}: {exc}")
-            raise VideoExtractionError(f"Extraction error: {str(exc)}") from exc
+            exc_str = str(exc)
+            logger.error(f"Extraction failed for {url}: {exc_str}")
+            
+            # Catch YouTube bot-detection errors and return a user-friendly message
+            if "Sign in to confirm you’re not a bot" in exc_str or "bot" in exc_str.lower():
+                raise VideoExtractionError(
+                    "YouTube has temporarily blocked this request (Bot detection). Please try again later or contact the server administrator."
+                ) from exc
+                
+            raise VideoExtractionError(f"Extraction error: {exc_str}") from exc
 
     async def extract_info(self, url: str, session_id: Optional[str] = None) -> VideoInfoResponse:
         """Asynchronously extract video info without blocking the event loop."""
