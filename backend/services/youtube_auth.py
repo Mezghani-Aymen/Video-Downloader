@@ -7,7 +7,8 @@ Provides yt-dlp options to bypass YouTube bot-detection on cloud servers
 Auth priority (first available wins):
   1. YOUTUBE_COOKIES_B64 env var  — base64-encoded cookies.txt content (MOST RELIABLE)
   2. YOUTUBE_COOKIES_FILE env var — path to an existing cookies.txt on disk
-  3. User-Agent spoofing only     — minimal protection, may still be blocked
+  3. PO Token and Visitor Data (via YOUTUBE_PO_TOKEN / YOUTUBE_VISITOR_DATA)
+  4. User-Agent spoofing and player_client fallback (minimal protection)
 """
 
 import base64
@@ -99,7 +100,28 @@ def get_ydl_auth_opts() -> Dict[str, Any]:
         "http_headers": {
             "User-Agent": _BROWSER_USER_AGENT,
         },
+        "extractor_args": {
+            "youtube": {
+                # Often bypasses bot detection when cookies are not provided
+                "player_client": ["ios", "android", "web"]
+            }
+        }
     }
+
+    # Integrate PO Token if provided
+    po_token = os.getenv("YOUTUBE_PO_TOKEN", "").strip()
+    visitor_data = os.getenv("YOUTUBE_VISITOR_DATA", "").strip()
+    
+    if po_token:
+        # Pass po_token to yt-dlp
+        # e.g., po_token=web+MY_TOKEN
+        # if the user just provided the token, we prepend web+ unless they already did
+        if "+" not in po_token:
+            po_token = f"web+{po_token}"
+        opts["extractor_args"]["youtube"]["po_token"] = [po_token]
+        
+    if visitor_data:
+        opts["extractor_args"]["youtube"]["visitor_data"] = [visitor_data]
 
     cookie_path = _get_cookie_file_path()
     if cookie_path:
@@ -108,8 +130,7 @@ def get_ydl_auth_opts() -> Dict[str, Any]:
     else:
         logger.warning(
             "No YouTube cookies configured. "
-            "Set YOUTUBE_COOKIES_B64 on Render to fix bot-detection errors."
+            "Set YOUTUBE_COOKIES_B64 or YOUTUBE_PO_TOKEN on Render to fix bot-detection errors."
         )
 
     return opts
-
